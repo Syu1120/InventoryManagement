@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Goods_scheduled_arrival extends Model
+class Goods_scheduled extends Model
 {
     //
 }

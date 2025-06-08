@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Goods;
 use App\Models\Goods_scheduled;
 use App\Models\Goods_stock;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class DisplayController extends Controller
 {

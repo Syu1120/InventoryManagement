@@ -20,42 +20,49 @@ use Illuminate\Support\Facades\Auth;
 //     return view('welcome');
 // });
 
-Route::get('/', [DisplayController::class, 'index']);
+Auth::routes();
 
-Route::get('/home', [DisplayController::class, 'index'])->name('home');
+Route::get( '/', [DisplayController::class, 'index']);
+
+Route::get( '/home', [DisplayController::class, 'index'])->name('home');
 
 
 // 在庫一覧
-Route::get('/goods_stock_list', [DisplayController::class, 'stockList'])->name('stockList');
+Route::get( '/goods_stock_list', [DisplayController::class, 'stockList'])->name('stockList');
 // 入荷予定一覧
-Route::get('/goods_scheduled_list', [DisplayController::class, 'scheduledList'])->name('scheduledList');
+Route::get( '/goods_scheduled_list', [DisplayController::class, 'scheduledList'])->name('scheduledList');
 // 入荷予定新規登録フォーム
-Route::get('/goods_scheduled_list/create', [RegistrationController::class, 'createScheduledForm'])->name('create.scheduled');
+Route::get( '/goods_scheduled_list/create', [RegistrationController::class, 'createScheduledForm'])->name('create.scheduled');
 Route::post('/goods_scheduled_list/create', [RegistrationController::class, 'createScheduled']);
 // 入荷予定編集フォーム
-Route::get('/goods_scheduled_list/edit', [RegistrationController::class, 'editScheduledForm'])->name('edit.scheduled');
+Route::get( '/goods_scheduled_list/edit', [RegistrationController::class, 'editScheduledForm'])->name('edit.scheduled');
 Route::post('/goods_scheduled_list/edit', [RegistrationController::class, 'editScheduled']);
 // 在庫情報編集フォーム
-Route::get('/goods_stock_list/edit', [RegistrationController::class, 'editStockForm'])->name('edit.stock');
+Route::get( '/goods_stock_list/edit', [RegistrationController::class, 'editStockForm'])->name('edit.stock');
 Route::post('/goods_stock_list/edit', [RegistrationController::class, 'editStock']);
 
 
 // 他店舗一覧
-Route::get('/store_list', [DisplayController::class, 'storeList'])->name('storeList');
+Route::get( '/store_list', [DisplayController::class, 'storeList'])->name('storeList');
 
 
 // 商品情報一覧
-Route::get('/goods_list', [DisplayController::class, 'goodsList'])->name('goodsList');
+Route::get( '/goods_list', [DisplayController::class, 'goodsList'])->name('goodsList');
 // 商品新規登録フォーム
-Route::get('/goods_list/create', [RegistrationController::class, 'createGoodsForm'])->name('create.goods');
-Route::post('/goods_list/create', [RegistrationController::class, 'createGoods']);
+Route::get( '/goods_list/create',       [RegistrationController::class, 'createGoodsForm'])    ->name('create.goods');
+Route::post('/goods_list/create',       [RegistrationController::class, 'createGoods']);
+Route::post('/goods_list/create/check', [RegistrationController::class, 'createGoodsComplete'])->name('create.goods.check');
 // 商品情報編集フォーム
-Route::get('/goods_list/edit', [RegistrationController::class, 'editGoodsForm'])->name('edit.goods');
+Route::get( '/goods_list/edit', [RegistrationController::class, 'editGoodsForm'])->name('edit.goods');
 Route::post('/goods_list/edit', [RegistrationController::class, 'editGoods']);
 
 
 // ユーザー一覧
-Route::get('/user_list', [DisplayController::class, 'userList'])->name('userList');
+Route::get( '/user_list', [DisplayController::class, 'userList'])->name('userList');
 // ユーザー新規登録フォーム
-Route::get('/user_list/create', [RegistrationController::class, 'createUserForm'])->name('create.user');
-Route::post('/user_list/create', [RegistrationController::class, 'createUser']);
+Route::get( '/user_list/create',       [RegistrationController::class, 'createUserForm'])    ->name('create.user');
+Route::post('/user_list/create',       [RegistrationController::class, 'createUser']);
+Route::post('/user_list/create/check', [RegistrationController::class, 'createUserComplete'])->name('create.user.check');
+Auth::routes();
+
+Route::get( '/home', 'HomeController@index')->name('home');

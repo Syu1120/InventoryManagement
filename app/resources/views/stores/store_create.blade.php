@@ -1,4 +1,4 @@
-<!-- 在庫情報編集確認 -->
+<!-- 店舗新規登録フォーム -->
 
 @extends('layouts.app')
 @section('content')
@@ -6,17 +6,15 @@
     <div class="col-md-5 mx-auto">
         <div class="card">
             <div class="card-header">
-                <h4 class='text-center'>在庫編集確認</h1>
+                <h4 class='text-center'>新規登録</h1>
             </div>
             <div class="card-body">
                 <div class="card-body">
-                    <form action="{{ route('edit.stock.check', ['id' => $id])}}" method="post">
+                    <form action="{{ route('create.store')}}" method="post" enctype="multipart/form-data">
                         @csrf
 
-                        <label for='quanity'>数量</label>
-                            <div>
-                                {{ $edit_input['quantity'] }}
-                            </div>
+                        <label for='name'>店舗名</label>
+                            <input type='text' class='form-control' name='name'/>
                         <div class='row justify-content-center'>
                             <button type='submit' class='btn btn-primary w-25 mt-3'>登録</button>
                         </div>

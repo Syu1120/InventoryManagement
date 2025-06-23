@@ -17,7 +17,7 @@ return [
     'accepted_if' => 'The :attribute field must be accepted when :other is :value.',
     'active_url' => 'The :attribute field must be a valid URL.',
     'after' => 'The :attribute field must be a date after :date.',
-    'after_or_equal' => 'The :attribute field must be a date after or equal to :date.',
+    'after_or_equal' => ':attribute には :date 以降の日付を入力してください。',
     'alpha' => 'The :attribute field must only contain letters.',
     'alpha_dash' => 'The :attribute field must only contain letters, numbers, dashes, and underscores.',
     'alpha_num' => 'The :attribute field must only contain letters and numbers.',
@@ -33,9 +33,9 @@ return [
     ],
     'boolean' => 'The :attribute field must be true or false.',
     'can' => 'The :attribute field contains an unauthorized value.',
-    'confirmed' => 'The :attribute field confirmation does not match.',
+    'confirmed' => ':attribute の確認が一致しません。',
     'current_password' => 'The password is incorrect.',
-    'date' => 'The :attribute field must be a valid date.',
+    'date' => ':attribute は有効な日付を入力してください。',
     'date_equals' => 'The :attribute field must be a date equal to :date.',
     'date_format' => 'The :attribute field must match the format :format.',
     'decimal' => 'The :attribute field must have :decimal decimal places.',
@@ -48,17 +48,17 @@ return [
     'distinct' => 'The :attribute field has a duplicate value.',
     'doesnt_end_with' => 'The :attribute field must not end with one of the following: :values.',
     'doesnt_start_with' => 'The :attribute field must not start with one of the following: :values.',
-    'email' => 'The :attribute field must be a valid email address.',
+    'email' => ':attribute は有効なメールアドレス形式で入力してください。',
     'ends_with' => 'The :attribute field must end with one of the following: :values.',
     'enum' => 'The selected :attribute is invalid.',
-    'exists' => 'The selected :attribute is invalid.',
+    'exists' => '選択された :attribute は存在しません。',
     'extensions' => 'The :attribute field must have one of the following extensions: :values.',
     'file' => 'The :attribute field must be a file.',
     'filled' => 'The :attribute field must have a value.',
     'gt' => [
         'array' => 'The :attribute field must have more than :value items.',
         'file' => 'The :attribute field must be greater than :value kilobytes.',
-        'numeric' => 'The :attribute field must be greater than :value.',
+        'numeric' => ':attribute は :value より大きい数で入力してください。',
         'string' => 'The :attribute field must be greater than :value characters.',
     ],
     'gte' => [
@@ -94,7 +94,7 @@ return [
         'array' => 'The :attribute field must not have more than :max items.',
         'file' => 'The :attribute field must not be greater than :max kilobytes.',
         'numeric' => 'The :attribute field must not be greater than :max.',
-        'string' => 'The :attribute field must not be greater than :max characters.',
+        'string' => ':attribute は :max 文字以内で入力してください。',
     ],
     'max_digits' => 'The :attribute field must not have more than :max digits.',
     'mimes' => 'The :attribute field must be a file of type: :values.',
@@ -114,7 +114,7 @@ return [
     'multiple_of' => 'The :attribute field must be a multiple of :value.',
     'not_in' => 'The selected :attribute is invalid.',
     'not_regex' => 'The :attribute field format is invalid.',
-    'numeric' => 'The :attribute field must be a number.',
+    'numeric' => ':attribute は数値で入力してください。',
     'password' => [
         'letters' => 'The :attribute field must contain at least one letter.',
         'mixed' => 'The :attribute field must contain at least one uppercase and one lowercase letter.',
@@ -131,8 +131,8 @@ return [
     'prohibited_if' => 'The :attribute field is prohibited when :other is :value.',
     'prohibited_unless' => 'The :attribute field is prohibited unless :other is in :values.',
     'prohibits' => 'The :attribute field prohibits :other from being present.',
-    'regex' => 'The :attribute field format is invalid.',
-    'required' => ':attribute 欄は必須項目です。',
+    'regex' => ':attribute の形式が正しくありません。',
+    'required' => ':attribute は必須です。',
     'required_array_keys' => 'The :attribute field must contain entries for: :values.',
     'required_if' => 'The :attribute field is required when :other is :value.',
     'required_if_accepted' => 'The :attribute field is required when :other is accepted.',
@@ -149,7 +149,7 @@ return [
         'string' => 'The :attribute field must be :size characters.',
     ],
     'starts_with' => 'The :attribute field must start with one of the following: :values.',
-    'string' => 'The :attribute field must be a string.',
+    'string' => ':attribute は文字列で入力してください。',
     'timezone' => 'The :attribute field must be a valid timezone.',
     'unique' => 'The :attribute has already been taken.',
     'uploaded' => 'The :attribute failed to upload.',
@@ -173,6 +173,33 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'goods_name' => [
+            'max' => '商品名は10文字以内で入力してください。',
+            'regex' => '商品名に使用できない文字が含まれています。',
+        ],
+        'email' => [
+            'email' => '有効なメールアドレス形式で入力してください。',
+        ],
+        'password' => [
+            'regex' => 'パスワードは英大文字と小文字の両方を含めてください。',
+            'confirmed' => '確認用パスワードが一致しません。',
+        ],
+        'goods_id' => [
+            'exists' => '選択された商品は存在しません。',
+        ],
+        'quantity' => [
+            'regex' => '数量は1以上の整数で入力してください。',
+            'numeric' => '数量は数値で入力してください。',
+            'gt' => '数量は0より大きい値で入力してください。',
+        ],
+        'weight' => [
+            'numeric' => '重量は数値で入力してください。',
+            'gt' => '重量は0より大きい値で入力してください。',
+        ],
+        'start_date' => [
+            'date' => '開始日は有効な日付形式で入力してください。',
+            'after_or_equal' => '開始日は今日以降の日付を入力してください。',
+        ],
     ],
 
     /*
@@ -187,9 +214,13 @@ return [
     */
 
     'attributes' => [
-        'amount' => '金額',
-        'date' => '日付',
-        'category' => 'カテゴリ',
+    'goods_name' => '商品名',
+    'goods_id' => '商品',
+    'email' => 'メールアドレス',
+    'password' => 'パスワード',
+    'quantity' => '数量',
+    'weight' => '重量',
+    'start_date' => '開始日',
     ],
 
 ];

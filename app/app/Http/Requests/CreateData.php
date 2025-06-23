@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Rule;
 
 class CreateData extends FormRequest
 {
@@ -14,7 +14,7 @@ class CreateData extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -25,26 +25,26 @@ class CreateData extends FormRequest
     public function rules()
     {
         return [
+                //           漢字     ひらがな    カタカナ        英数字    スペース      UTF-8
+                // 'regex:/^[\p{Han}\p{Hiragana}\p{Katakana}  a-zA-Z0-9    \s     ]+$  /u'
             'name' => [
                 'required',
                 'string',
                 'max:10',
-                //         漢字     ひらがな    カタカナ    英数字    スペース    UTF-8
-                'regex:/^[\p{Han}\p{Hiragana}\p{Katakana}a-zA-Z0-9    \s   ]+$  /u'
+            ],
+            'goods_id' => [
+                'required',
+                Rule::exists('goods', 'id')->whereNull('deleted_at'),
             ],
             'goods_name' => [
                 'required',
                 'string',
                 'max:100',
-                //         漢字     ひらがな    カタカナ    英数字    スペース    UTF-8
-                'regex:/^[\p{Han}\p{Hiragana}\p{Katakana}a-zA-Z0-9    \s   ]+$  /u'
             ],
             'store_name' => [
                 'required',
                 'string',
                 'max:20',
-                //         漢字     ひらがな    カタカナ    英数字    スペース    UTF-8
-                'regex:/^[\p{Han}\p{Hiragana}\p{Katakana}a-zA-Z0-9    \s   ]+$  /u'
             ],
             'email' => [
                 'required',
@@ -54,9 +54,10 @@ class CreateData extends FormRequest
             'password' => [
                 'required',
                 'confirmed',
+                'min:8',
                 'max:100',
-                Password::min(8)
-                ->mixedCase()
+                'regex:/[a-z]/',
+                'regex:/[A-Z]/',
             ],
             'quantity' => [
                 'required',

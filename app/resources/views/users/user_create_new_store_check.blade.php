@@ -10,6 +10,16 @@
             </div>
             <div class="card-body">
                 <div class="card-body">
+
+                    <!-- バリデーションのAlertウィンドウ -->
+                    @if($errors->any())
+                    <div class="alert alert-danger">
+                        @foreach($errors->all() as $message)
+                        <li>{{ $message }}</li>
+                        @endforeach
+                    </div>
+                    @endif
+
                     <form action="{{ route('create.user.check')}}" method="post">
                         @csrf
                         <label for='name'>名前</label>

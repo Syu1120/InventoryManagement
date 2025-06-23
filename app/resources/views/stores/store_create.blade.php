@@ -10,11 +10,21 @@
             </div>
             <div class="card-body">
                 <div class="card-body">
+
+                    <!-- バリデーションのAlertウィンドウ -->
+                    @if($errors->any())
+                    <div class="alert alert-danger">
+                        @foreach($errors->all() as $message)
+                        <li>{{ $message }}</li>
+                        @endforeach
+                    </div>
+                    @endif
+
                     <form action="{{ route('create.store')}}" method="post" enctype="multipart/form-data">
                         @csrf
 
                         <label for='name'>店舗名</label>
-                            <input type='text' class='form-control' name='name'/>
+                            <input type='text' class='form-control' name='store_name' value="{{ old('store_name') }}"/>
                         <div class='row justify-content-center'>
                             <button type='submit' class='btn btn-primary w-25 mt-3'>登録</button>
                         </div>

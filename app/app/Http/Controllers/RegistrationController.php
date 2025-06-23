@@ -2,15 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+
+use App\Http\Requests\CreateData;
+use App\Http\Requests\CreateGoodsRequest;
+use App\Http\Requests\CreateScheduledRequest;
+use App\Http\Requests\CreateStoreRequest;
+use App\Http\Requests\CreateUserRequest;
+use App\Http\Requests\EditGoodsRequest;
+use App\Http\Requests\EditScheduledRequest;
+use App\Http\Requests\EditStockRequest;
+
 use App\Models\Goods;
 use App\Models\Goods_scheduled;
 use App\Models\Goods_stock;
 use App\Models\User;
 use App\Models\Store;
+
+use App\Mail\ResetPasswordMail;
 
 class RegistrationController extends Controller
 {
@@ -23,8 +38,8 @@ class RegistrationController extends Controller
         );
     }
     // 入荷予定新規登録(post)
-    public function createScheduled(Request $request) {
-        $goods = Goods::findOrFail($request['name']);
+    public function createScheduled(CreateScheduledRequest $request) {
+        $goods = Goods::findOrFail($request['goods_id']);
 
         $input = $request->only(['quantity', 'date']);
         $input['store_id'] = Auth::user()->store_id;
@@ -44,6 +59,10 @@ class RegistrationController extends Controller
     public function createScheduledComplete(Request $request) {
         $input = $request->session()->get('scheduled_input_data');
 
+        if (is_null($input)) {
+            return redirect('/goods_scheduled_list')->with('error', 'セッションが切れました。最初からやり直してください。');
+        }
+
         Goods_scheduled::create($input);
 
         $request->session()->forget('scheduled_input_data');
@@ -55,13 +74,21 @@ class RegistrationController extends Controller
     public function editScheduledForm(int $id) {
         $scheduled = Goods_scheduled::findOrFail($id);
 
+        if (is_null($scheduled)) {
+            abort(404);
+        }
+
         return view('goods_scheduled.goods_scheduled_edit',
             ['scheduled' => $scheduled]
         );
     }
     // 入荷予定編集(post)
-    public function editScheduled(int $id, Request $request) {
+    public function editScheduled(int $id, EditScheduledRequest $request) {
         $scheduled = Goods_scheduled::findOrFail($id);
+
+        if (is_null($scheduled)) {
+            abort(404);
+        }
 
         $input = [
             'quantity' => $request->filled('quantity') ? $request->input('quantity') : $scheduled->quantity,
@@ -78,10 +105,22 @@ class RegistrationController extends Controller
     // 入荷予定編集確認(post)
     public function editScheduledComplete(int $id, Request $request) {
         $edit_input = $request->session()->get('goods_scheduled_edit_input_data');
+
+        if (is_null($edit_input)) {
+            return redirect('/goods_scheduled_list')->with('error', 'セッションが切れました。最初からやり直してください。');
+        }
+
         $scheduled = Goods_scheduled::findOrFail($id);
+
+        if (is_null($scheduled)) {
+            abort(404);
+        }
+
+        $goods = Goods::where('id', $scheduled['goods_id'])->first();
 
         $scheduled->quantity   = $edit_input['quantity'];
         $scheduled->date       = $edit_input['date'];
+        $scheduled->weight     = $goods['weight'] * $edit_input['quantity'];
 
         $scheduled->save();
 
@@ -93,6 +132,10 @@ class RegistrationController extends Controller
     // 入荷確定(post)
     public function addToStock($id) {
         $scheduled = Goods_scheduled::with('goods')->findOrFail($id);
+
+        if (is_null($scheduled)) {
+            abort(404);
+        }
 
         $stock = Goods_stock::where('store_id', Auth::user()->store_id)->where('goods_id', $scheduled->goods_id)->first();
 
@@ -119,13 +162,21 @@ class RegistrationController extends Controller
     public function editStockForm(int $id) {
         $stock = Goods_stock::findOrFail($id);
 
+        if (is_null($stock)) {
+            abort(404);
+        }
+
         return view('goods_stocks.goods_stock_edit',
             ['stock' => $stock]
         );
     }
     // 在庫編集(post)
-    public function editStock(int $id, Request $request) {
+    public function editStock(int $id, EditStockRequest $request) {
         $stock = Goods_stock::findOrFail($id);
+
+        if (is_null($stock)) {
+            abort(404);
+        }
 
         $input = [
             'quantity' => $request->filled('quantity') ? $request->input('quantity') : $stock->quantity
@@ -141,11 +192,32 @@ class RegistrationController extends Controller
     // 在庫編集確認(post)
     public function editStockComplete(int $id, Request $request) {
         $edit_input = $request->session()->get('goods_stock_edit_input_data');
+
+        if (is_null($edit_input)) {
+            return redirect('/goods_stock_list')->with('error', 'セッションが切れました。最初からやり直してください。');
+        }
+
         $stock = Goods_stock::findOrFail($id);
 
-        $stock->quantity = $edit_input['quantity'];
+        if (is_null($stock)) {
+            abort(404);
+        }
 
-        $stock->save();
+        if ($edit_input['quantity'] == 0) {
+            $stock->quantity = 0;
+            $stock->weight   = 0;
+
+            $stock->save();
+            $stock->delete();
+        }
+        else {
+            $goods = Goods::where('id', $stock['goods_id'])->first();
+
+            $stock->quantity = $edit_input['quantity'];
+            $stock->weight   = $goods['weight'] * $edit_input['quantity'];
+
+            $stock->save();
+        }
 
         $request->session()->forget('goods_stock_edit_input_data');
 
@@ -157,8 +229,12 @@ class RegistrationController extends Controller
         return view('goods.goods_create');
     }
     // 商品新規登録(post)
-    public function createGoods(Request $request) {
-        $input = $request->only(['name', 'weight']);
+    public function createGoods(CreateGoodsRequest $request) {
+        $input = [
+            'name'   => $request->input('goods_name'),
+            'weight' => $request->input('weight')
+        ];
+
         $input['store_id'] = Auth::user()->store_id;
         $imageUrl = null;
 
@@ -178,6 +254,11 @@ class RegistrationController extends Controller
     // 商品新規登録確認(post)
     public function createGoodsComplete(Request $request) {
         $input = $request->session()->get('goods_input_data');
+
+        if (is_null($input)) {
+            return redirect('/goods_list')->with('error', 'セッションが切れました。最初からやり直してください。');
+        }
+
         $imagePath = null;
 
         if (!empty($input['image']) && Storage::disk('public')->exists($input['image'])) {
@@ -202,16 +283,24 @@ class RegistrationController extends Controller
     public function editGoodsForm(int $id) {
         $goods = Goods::findOrFail($id);
 
+        if (is_null($goods)) {
+            abort(404);
+        }
+
         return view('goods.goods_edit',
             ['goods' => $goods]
         );
     }
     // 商品編集(post)
-    public function editGoods(int $id, Request $request) {
+    public function editGoods(int $id, EditGoodsRequest $request) {
         $goods = Goods::findOrFail($id);
 
+        if (is_null($goods)) {
+            abort(404);
+        }
+
         $input = [
-            'name'   => $request->filled('name')   ? $request->input('name')   : $goods->name,
+            'name'   => $request->filled('goods_name')   ? $request->input('goods_name')   : $goods->name,
             'weight' => $request->filled('weight') ? $request->input('weight') : $goods->weight,
             'image'  => $goods->image,
             'tmp_image' => null
@@ -232,7 +321,16 @@ class RegistrationController extends Controller
     // 商品編集確認(post)
     public function editGoodsComplete(int $id, Request $request) {
         $edit_input = $request->session()->get('goods_edit_input_data');
+
+        if (is_null($edit_input)) {
+            return redirect('/goods_list')->with('error', 'セッションが切れました。最初からやり直してください。');
+        }
+
         $goods = Goods::findOrFail($id);
+
+        if (is_null($goods)) {
+            abort(404);
+        }
 
         $goods->name   = $edit_input['name'];
         $goods->weight = $edit_input['weight'];
@@ -282,7 +380,7 @@ class RegistrationController extends Controller
         return view('users.user_create');
     }
     // ユーザー新規登録(post)
-    public function createUser(Request $request) {
+    public function createUser(CreateUserRequest $request) {
         $input = $request->only(['name', 'email', 'password']);
         $input['store_id'] = Auth::user()->store_id;
 
@@ -298,6 +396,11 @@ class RegistrationController extends Controller
     public function createUserComplete(Request $request) {
         $input = $request->session()->get('user_input_data');
 
+        if (is_null($input)) {
+            return redirect('/user_list')->with('error', 'セッションが切れました。最初からやり直してください。');
+        }
+
+
         User::create($input);
 
         $request->session()->forget('user_input_data');
@@ -306,7 +409,7 @@ class RegistrationController extends Controller
     }
 
     // 店舗新規登録時ユーザー新規登録(post)
-    public function createNewStoreUser(int $store_id, Request $request) {
+    public function createNewStoreUser(int $store_id, CreateUserRequest $request) {
         $input = $request->only(['name', 'email', 'password']);
         $input['store_id'] = $store_id;
         $input['role'] = 0;
@@ -323,6 +426,11 @@ class RegistrationController extends Controller
     public function createNewStoreUserComplete(Request $request) {
         $input = $request->session()->get('user_input_data');
 
+        if (is_null($input)) {
+            return redirect('/store_list')->with('error', 'セッションが切れました。最初からやり直してください。');
+        }
+
+
         User::create($input);
 
         $request->session()->forget('user_input_data');
@@ -335,8 +443,10 @@ class RegistrationController extends Controller
         return view('stores.store_create');
     }
     // 店舗新規登録(post)
-    public function createStore(Request $request) {
-        $input = $request->only(['name']);
+    public function createStore(CreateStoreRequest $request) {
+        $input = [
+            'name' => $request->input('store_name')
+        ];
 
         $request->session()->put('store_input_data', $input);
 
@@ -348,6 +458,10 @@ class RegistrationController extends Controller
     public function createStoreComplete(Request $request) {
         $input = $request->session()->get('store_input_data');
 
+        if (is_null($input)) {
+            return redirect('/store_list')->with('error', 'セッションが切れました。最初からやり直してください。');
+        }
+
         $store = Store::create($input);
 
         $request->session()->forget('store_input_data');
@@ -358,5 +472,25 @@ class RegistrationController extends Controller
         return view('users.user_create_new_store',
             ['store_id' => $store_id]
         );
+    }
+
+    public function sendResetPasswordEmail($id) : JsonResponse {
+        try {
+            $user = User::findOrFail($id);
+
+            $token = Str::random(60);
+            $user->reset_password_token = $token;
+            $user->save();
+
+            $resetUrl = url("/password/reset/{$token}");
+
+            Mail::to($user->email)->send(new \App\Mail\ResetPasswordMail($user, $resetUrl));
+
+            return response()->json(['message' => 'パスワード再設定メールを送信しました'], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('パスワード再設定メール送信エラー: ' . $e->getMessage());
+            return response()->json(['error' => 'メール送信に失敗しました'], 500);
+        }
     }
 }

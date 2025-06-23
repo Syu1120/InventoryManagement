@@ -18,7 +18,7 @@
                     <div class="d-flex align-items-center flex-column">
                          @forelse ($stores as $store)
                             <div>
-                                <a href="{{ route('storeList') }}">
+                                <a href="{{ route('stockOtherStoreList', ['id' => $store->id]) }}">
                                     <button class="mt-3">{{ $store->name }}</button>
                                 </a>
                             </div>

@@ -5,13 +5,18 @@
 <main>
     <div class="container">
         <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ route('create.scheduled') }}">
-                <button>入荷予定新規登録</button>
-            </a>
-            <form action="" method="post">
+            <div class="d-flex flex-column">
+                <a href="{{ route('create.scheduled') }}">
+                    <button class="mt-3">入荷予定新規登録</button>
+                </a>
+                <a href="{{ route('stockList') }}">
+                    <button class="mt-3">在庫一覧画面へ</button>
+                </a>
+            </div>
+            <form action="{{ route('search.scheduled') }}" method="GET">
                 {{-- <div class="d-flex flex-column"> --}}
                     <lavel for='name'>商品名</lavel>
-                        <input type='text' class="form-control" name='name'>
+                        <input type='text' class="form-control" name='goods_name'>
                     <label for='date' class='mt-2'>日付</label>
                         <input type='date' class="form-control" name='date' id='date'/>
                 {{-- </div> --}}
@@ -68,7 +73,7 @@
                                             </a>
                                             <button type="button" class="btn btn-danger" onclick="handleDelete({{ $scheduled->id }})">削除</button>
                                             <button type="button" class="btn btn-warning" onclick="handleConfirm({{ $scheduled->id }})">入荷確定</button>
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                                            {{-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button> --}}
                                         </div>
                                     </div>
                                 </div>

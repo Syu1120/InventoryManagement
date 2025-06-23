@@ -8,7 +8,7 @@
             <a href="{{ route('create.user') }}">
                 <button>ユーザー登録</button>
             </a>
-            <form action="" method="post">
+            <form action="{{ route('search.user') }}" method="GET">
                 {{-- <div class="d-flex flex-column"> --}}
                     <lavel for='name'>ユーザー名</lavel>
                         <input type='text' class="form-control" name='name'>
@@ -52,8 +52,9 @@
                                             <p>メールアドレス：{{ $user->email }}</p>
                                         </div>
                                         <div class="modal-footer">
+                                            <button type="button" class="btn btn-warning" onclick="sendResetMail({{ $user->id }})">パスワードリセット</button>
                                             <button type="button" class="btn btn-danger" onclick="handleDelete({{ $user->id }})">削除</button>
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                                            {{-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button> --}}
                                         </div>
                                     </div>
                                 </div>
@@ -90,5 +91,24 @@
                 alert("エラーが発生しました: " + error.message);
             });
         }
+    }
+
+    function sendResetMail(userId) {
+        if (!confirm('本当にパスワード再設定メールを送信しますか？')) return;
+
+        fetch(`/users/${userId}/send-reset-mail`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            },
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('パスワード再設定メールを送信しました');
+            } else {
+                alert('送信に失敗しました');
+            }
+        });
     }
 </script>

@@ -10,6 +10,16 @@
             </div>
             <div class="card-body">
                 <div class="card-body">
+
+                    <!-- バリデーションのAlertウィンドウ -->
+                    @if($errors->any())
+                    <div class="alert alert-danger">
+                        @foreach($errors->all() as $message)
+                        <li>{{ $message }}</li>
+                        @endforeach
+                    </div>
+                    @endif
+
                     <form action="{{ route('edit.goods', ['id' => $goods->id]) }}" method="post" enctype="multipart/form-data">
                         @csrf
 
@@ -25,9 +35,9 @@
                             <input type="file" class="form-control" name="image" id="image">
 
                         <label for='name'>商品名</label>
-                            <input type='text' class='form-control' name='name' value="{{ $goods->name }}"/>
+                            <input type='text' class='form-control' name='goods_name' value="{{ old('goods_name', $goods->name) }}"/>
                         <label for='weight'>重量</label>
-                            <input type='text' class='form-control' name='weight' value="{{ $goods->weight }}"/>
+                            <input type='text' class='form-control' name='weight' value="{{ old('weight', $goods->weight) }}"/>
                         <div class='row justify-content-center'>
                             <button type='submit' class='btn btn-primary w-25 mt-3'>登録</button>
                         </div>

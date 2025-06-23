@@ -14,12 +14,13 @@
                         @csrf
 
                         <label for='name'>名前</label>
-                            <input type='text' class='form-control' name='name'/>
+                            <input type='text' class='form-control' name='name' value="{{ old('name') }}"/>
                         <label for='email'>メールアドレス</label>
-                            <input type='text' class='form-control' name='email'/>
+                            <input type='text' class='form-control' name='email' value="{{ old('email') }}"/>
                         <label for='password'>パスワード</label>
-                            <input type='text' class='form-control' name='password'/>
-                        {{-- ここにパスワード確認のテキストボックス追加予定 --}}
+                            <input type='password' class='form-control' name='password'/>
+                        <label for='password_confirmation'>パスワード（確認）</label>
+                            <input type='password' class='form-control' name='password_confirmation'/>
                         <div class='row justify-content-center'>
                             <button type='submit' class='btn btn-primary w-25 mt-3'>登録</button>
                         </div>

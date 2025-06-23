@@ -8,10 +8,10 @@
             <a href="{{ route('create.goods') }}">
                 <button>商品新規登録</button>
             </a>
-            <form action="" method="post">
+            <form action="{{ route('search.goods') }}" method="GET">
                 {{-- <div class="d-flex flex-column"> --}}
                     <lavel for='name'>商品名</lavel>
-                        <input type='text' class="form-control" name='name'>
+                        <input type='text' class="form-control" name='goods_name' value="{{ request('goods_name') }}">
                 {{-- </div> --}}
                 <div class='row justify-content-center'>
                     <button type='submit' class='btn btn-primary w-25 mt-3'>検索</button>
@@ -64,7 +64,7 @@
                                                 <button>編集</button>
                                             </a>
                                             <button type="button" class="btn btn-danger" onclick="handleDelete({{ $goods->id }})">削除</button>
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                                            {{-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button> --}}
                                         </div>
                                     </div>
                                 </div>

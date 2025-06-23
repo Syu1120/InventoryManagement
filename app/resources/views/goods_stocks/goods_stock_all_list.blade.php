@@ -5,13 +5,20 @@
 <main>
     <div class="container">
         <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ route('scheduledList') }}">
-                <button>入荷予定一覧</button>
-            </a>
-            <form action="{{ route('search.stock') }}" method="GET">
+            <div class="d-flex flex-column">
+                <a href="{{ route('scheduledList') }}">
+                    <button class="mt-3">入荷予定一覧</button>
+                </a>
+                <a href="{{ route('storeList') }}">
+                    <button class="mt-3">店舗一覧画面へ</button>
+                </a>
+            </div>
+            <form action="{{ route('search.all.stock') }}" method="GET">
                 {{-- <div class="d-flex flex-column"> --}}
-                    <lavel for='goods_name'>商品名</lavel>
+                    <label for='goods_name'>商品名</label>
                         <input type='text' class="form-control" name='goods_name' value="{{ request('goods_name') }}">
+                    <label for='store_name'>店舗名</label>
+                        <input type='text' class="form-control" name='store_name' value="{{ request('store_name') }}">
                     <label for='date' class='mt-2'>日付</label>
                         <input type='date' class="form-control" name='date' id='date' value="{{ request('date') }}">
                 {{-- </div> --}}
@@ -63,10 +70,6 @@
                                             <p>入荷予定日：{{ $stock->date }}</p>
                                         </div>
                                         <div class="modal-footer">
-                                            <a href="{{ route('edit.stock', ['id' => $stock->id]) }}">
-                                                <button>編集</button>
-                                            </a>
-                                            <button type="button" class="btn btn-danger" onclick="handleDelete({{ $stock->id }})">削除</button>
                                             {{-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button> --}}
                                         </div>
                                     </div>
@@ -81,28 +84,3 @@
     </div>
 </main>
 @endsection
-
-<script>
-    function handleDelete(stock) {
-        if (confirm("本当に削除しますか？")) {
-            fetch(`/goods_stock/${stock}/delete`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                },
-            })
-            .then(response => {
-                if (!response.ok) throw new Error("通信エラー");
-                return response.json();
-            })
-            .then(data => {
-                alert(data.message);
-                location.reload();
-            })
-            .catch(error => {
-                alert("エラーが発生しました: " + error.message);
-            });
-        }
-    }
-</script>
